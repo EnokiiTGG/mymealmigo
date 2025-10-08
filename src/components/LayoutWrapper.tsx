@@ -42,9 +42,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   const router = useRouter();
   const isAdminRoute = pathname?.startsWith('/admin');
+  const isNutritionistRoute = pathname?.startsWith('/nutritionist');
 
-  // real auth state
-  const { user, isAdmin } = useAuth();
+  // real auth state (now includes isNutritionist)
+  const { user, isAdmin, isNutritionist } = useAuth();
   const isLoggedIn = !!user;
 
   const [settings, setSettings] = useState<Settings>(defaultSettings);
@@ -93,10 +94,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   return (
     <>
       {children}
-      {!isAdminRoute && (
+      {!(isAdminRoute || isNutritionistRoute) && (
         <footer className="bg-white text-gray-800 py-12 border-t border-[#2fe93b]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* ⬅️ changed to 4 columns */}
+            {/* 4 columns */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {/* Brand / about */}
               <div>
@@ -158,28 +159,44 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 )}
               </div>
 
-              {/* Admin (new column) */}
+              {/* Staff (new column) */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-[#58e221]">Admin</h3>
+                <h3 className="text-lg font-semibold mb-4 text-[#58e221]">Staff</h3>
                 <ul className="space-y-2">
                   {!isLoggedIn ? (
                     <li>
                       <a href="/login" className="text-gray-600 hover:text-[#58e221] flex items-center">
                         <Lock className="h-4 w-4 mr-2" />
-                        Admin login
+                        Staff login
                       </a>
                     </li>
-                  ) : isAdmin ? (
-                    <li>
-                      <button
-                        onClick={handleLogout}
-                        className="text-gray-600 hover:text-[#58e221] flex items-center"
-                      >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Logout
-                      </button>
-                    </li>
-                  ) : null}
+                  ) : (
+                    <>
+                      {isAdmin && (
+                        <li>
+                          <a href="/admin/dashboard" className="text-gray-600 hover:text-[#58e221]">
+                            Admin Dashboard
+                          </a>
+                        </li>
+                      )}
+                      {isNutritionist && (
+                        <li>
+                          <a href="/nutritionist/dashboard" className="text-gray-600 hover:text-[#58e221]">
+                            Nutritionist Dashboard
+                          </a>
+                        </li>
+                      )}
+                      <li>
+                        <button
+                          onClick={handleLogout}
+                          className="text-gray-600 hover:text-[#58e221] flex items-center"
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Logout
+                        </button>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
             </div>
