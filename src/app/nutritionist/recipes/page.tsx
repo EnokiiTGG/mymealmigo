@@ -20,8 +20,8 @@ export default function RecipesReviewPage() {
 
   useEffect(() => {
     const q = query(collection(db, "recipes"), where("status", "==", "pending"));
-    const unsub = onSnapshot(q, snap => {
-      setRecipes(snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<Recipe,"id">) })));
+    const unsub = onSnapshot(q, (snap) => {
+      setRecipes(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Recipe, "id">) })));
     });
     return () => unsub();
   }, []);
@@ -49,15 +49,19 @@ export default function RecipesReviewPage() {
     <div className="rounded-xl border bg-white">
       <div className="p-4 border-b font-medium">Recipes Pending Validation</div>
       <div className="divide-y">
-        {recipes.map(r => (
+        {recipes.map((r) => (
           <div key={r.id} className="p-4 flex items-center justify-between">
             <div>
               <div className="font-medium">{r.title || "(Untitled recipe)"}</div>
               <div className="text-xs text-gray-500">status: {r.status}</div>
             </div>
             <div className="space-x-2">
-              <button onClick={() => approve(r.id)} className="px-3 py-1 text-sm bg-[#58e221] text-white rounded-md">Approve</button>
-              <button onClick={() => reject(r.id)} className="px-3 py-1 text-sm border rounded-md hover:bg-gray-50">Request changes</button>
+              <button onClick={() => approve(r.id)} className="px-3 py-1 text-sm bg-[#58e221] text-white rounded-md">
+                Approve
+              </button>
+              <button onClick={() => reject(r.id)} className="px-3 py-1 text-sm border rounded-md hover:bg-gray-50">
+                Request changes
+              </button>
             </div>
           </div>
         ))}

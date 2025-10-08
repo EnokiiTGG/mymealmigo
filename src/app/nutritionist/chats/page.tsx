@@ -19,12 +19,10 @@ export default function ChatsPage() {
     const q = query(
       collection(db, "chats"),
       where("status", "==", "open"),
-      // optionally only show ones that asked for consultation:
-      // where("consultRequested", "==", true),
       orderBy("lastMessageAt", "desc")
     );
     const unsub = onSnapshot(q, (snap) => {
-      setChats(snap.docs.map(d => ({ id: d.id, ...(d.data() as Omit<Chat,"id">) })));
+      setChats(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Chat, "id">) })));
     });
     return () => unsub();
   }, []);
@@ -33,7 +31,7 @@ export default function ChatsPage() {
     <div className="rounded-xl border bg-white">
       <div className="p-4 border-b font-medium">Open Chats</div>
       <div className="divide-y">
-        {chats.map(c => (
+        {chats.map((c) => (
           <a key={c.id} href={`/nutritionist/chats/${c.id}`} className="block p-4 hover:bg-gray-50">
             <div className="flex items-center justify-between">
               <div>
@@ -42,7 +40,9 @@ export default function ChatsPage() {
                   {c.consultRequested ? "Consultation requested" : "AI chat"}
                 </div>
               </div>
-              <div className="text-xs text-gray-500">{c.lastMessageAt?.toDate?.().toLocaleString?.() ?? ""}</div>
+              <div className="text-xs text-gray-500">
+                {c.lastMessageAt?.toDate?.().toLocaleString?.() ?? ""}
+              </div>
             </div>
           </a>
         ))}

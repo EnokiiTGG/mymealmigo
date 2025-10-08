@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, orderBy, limit, getCountFromServer, getDocs } from "firebase/firestore";
+import { collection, query, where, getCountFromServer } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function NutritionistDashboard() {
@@ -27,12 +27,12 @@ export default function NutritionistDashboard() {
       <div className="rounded-xl border p-4 bg-white">
         <div className="text-sm text-gray-600">Open Chats</div>
         <div className="text-3xl font-semibold">{openChats}</div>
-        <a href="/nutritionist/chats" className="text-[#58e221] text-sm mt-2 inline-block">View all</a>
+        <a href="/nutritionist/chats" className="text-[#58e221] text-sm mt-2 inline-block">Go to Chats</a>
       </div>
       <div className="rounded-xl border p-4 bg-white">
         <div className="text-sm text-gray-600">Recipes Pending Validation</div>
         <div className="text-3xl font-semibold">{pendingRecipes}</div>
-        <a href="/nutritionist/recipes" className="text-[#58e221] text-sm mt-2 inline-block">Review</a>
+        <a href="/nutritionist/recipes" className="text-[#58e221] text-sm mt-2 inline-block">Go to Recipes</a>
       </div>
     </div>
   );
