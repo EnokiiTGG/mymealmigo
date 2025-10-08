@@ -9,6 +9,7 @@ type AuthCtx = {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
+  isNutritionist?: boolean;
 };
 
 type FirestoreUserDoc = {
@@ -25,6 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isNutritionist, setIsNutritionist] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,12 +43,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = (snap.data() ?? {}) as FirestoreUserDoc;
             const role = typeof data.role === "string" ? data.role.toLowerCase() : "";
             setIsAdmin(role === "admin");
+            setIsNutritionist(role === "nutritionist");
           }
         } catch {
-          if (!cancelled) setIsAdmin(false);
+          if (!cancelled)
+            { setIsAdmin(false); setIsNutritionist(false); }
         }
       } else {
         setIsAdmin(false);
+        setIsNutritionist(false);
       }
 
       if (!cancelled) setLoading(false);
@@ -63,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, isNutritionist }}>
       {children}
     </AuthContext.Provider>
   );

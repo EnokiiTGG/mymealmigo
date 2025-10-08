@@ -2,10 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword, User as FirebaseUser, sendPasswordResetEmail, signOut } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  User as FirebaseUser,
+  sendPasswordResetEmail,
+  signOut,
+} from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { getClientAuth, db } from "@/lib/firebase";
-import { SignUpModal } from "@/components/sign-up-modal";
 import { X } from "lucide-react";
 
 const auth = getClientAuth();
@@ -15,7 +19,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetMessage, setResetMessage] = useState("");
@@ -27,15 +30,18 @@ export default function LoginPage() {
     try {
       const userDocRef = doc(db, "users", user.uid);
       const userDoc = await getDoc(userDocRef);
-      console.log("User UID:", user.uid);
-      console.log("Document exists:", userDoc.exists());
-      console.log("Document data:", userDoc.data());
 
-      if (userDoc.exists() && userDoc.data()?.role?.toLowerCase() === "admin") {
+      const role = userDoc.exists()
+        ? String(userDoc.data()?.role || "").toLowerCase()
+        : "";
+
+      if (role === "admin") {
         router.push("/admin/dashboard");
+      } else if (role === "nutritionist") {
+        router.push("/nutritionist/dashboard");
       } else {
         await signOut(auth);
-        setError("Only admin accounts can sign in.");
+        setError("Only staff accounts (admin or nutritionist) can sign in.");
       }
     } catch (err) {
       console.error("Error checking user role:", err);
@@ -52,20 +58,25 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Check if the user is an admin
+      // Determine role once (used for email verification rule below)
       const userDocRef = doc(db, "users", user.uid);
       const userDoc = await getDoc(userDocRef);
-      const isAdmin = userDoc.exists() && userDoc.data()?.role?.toLowerCase() === "admin";
+      const role = userDoc.exists()
+        ? String(userDoc.data()?.role || "").toLowerCase()
+        : "";
 
-      // Skip email verification for admins
-      if (!isAdmin && !user.emailVerified) {
-        await auth.signOut(); // Sign out unverified non-admin users
+      const isStaff = role === "admin" || role === "nutritionist";
+
+      // Skip email verification for staff (admin/nutritionist). Non-staff would be blocked anyway.
+      if (!isStaff && !user.emailVerified) {
+        await auth.signOut();
         throw new Error("Please verify your email before logging in.");
       }
 
       await checkUserRoleAndRedirect(user);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred during login";
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred during login";
       setError(errorMessage);
       console.error(err);
     } finally {
@@ -81,7 +92,9 @@ export default function LoginPage() {
 
     try {
       await sendPasswordResetEmail(auth, resetEmail);
-      setResetMessage("Password reset email sent! Please check your inbox (and spam/junk folder).");
+      setResetMessage(
+        "Password reset email sent! Please check your inbox (and spam/junk folder)."
+      );
       setResetEmail("");
     } catch (err: unknown) {
       let errorMessage = "Failed to send password reset email.";
@@ -108,8 +121,11 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Admin Login</h2>
-          </div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Staff Login
+          </h2>
+        </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -160,6 +176,7 @@ export default function LoginPage() {
             </div>
             <div className="text-sm text-center">
               <button
+                type="button"
                 onClick={() => setIsResetModalOpen(true)}
                 className="font-medium text-[#58e221] hover:text-[#58e221]/90"
               >
@@ -168,11 +185,6 @@ export default function LoginPage() {
             </div>
           </div>
         </form>
-
-        <SignUpModal
-          isOpen={isSignUpModalOpen}
-          onClose={() => setIsSignUpModalOpen(false)}
-        />
 
         {/* Password Reset Modal */}
         {isResetModalOpen && (
@@ -207,8 +219,12 @@ export default function LoginPage() {
                     required
                   />
                 </div>
-                {resetMessage && <div className="text-green-500 text-sm mb-4">{resetMessage}</div>}
-                {resetError && <div className="text-red-500 text-sm mb-4">{resetError}</div>}
+                {resetMessage && (
+                  <div className="text-green-500 text-sm mb-4">{resetMessage}</div>
+                )}
+                {resetError && (
+                  <div className="text-red-500 text-sm mb-4">{resetError}</div>
+                )}
                 <button
                   type="submit"
                   disabled={isResetLoading}
