@@ -38,7 +38,7 @@ export default function LoginPage() {
       if (role === "admin") {
         router.push("/admin/dashboard");
       } else if (role === "nutritionist") {
-        router.push("/nutritionist");
+        router.push("/nutritionist/dashboard");
       } else {
         await signOut(auth);
         setError("Only staff accounts (admin or nutritionist) can sign in.");

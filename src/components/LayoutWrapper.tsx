@@ -181,7 +181,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                       )}
                       {isNutritionist && (
                         <li>
-                          <a href="/nutritionist" className="text-gray-600 hover:text-[#58e221]">
+                          <a href="/nutritionist/dashboard" className="text-gray-600 hover:text-[#58e221]">
                             Nutritionist Dashboard
                           </a>
                         </li>
