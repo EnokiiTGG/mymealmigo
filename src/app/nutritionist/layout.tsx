@@ -1,17 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getClientAuth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import {
-  LayoutDashboard,
-  MessageSquare,
-  BookOpen,
-  LogOut,
-} from "lucide-react";
+import { LayoutDashboard, MessageSquare, BookOpen, LogOut } from "lucide-react";
 
 export default function NutritionistLayout({ children }: { children: React.ReactNode }) {
   const { user, isNutritionist, loading } = useAuth() as any;
@@ -27,29 +22,27 @@ export default function NutritionistLayout({ children }: { children: React.React
 
   const nav = [
     { href: "/nutritionist/dashboard", label: "Dashboard", Icon: LayoutDashboard },
-    { href: "/nutritionist/chats",      label: "Chats",     Icon: MessageSquare },
-    { href: "/nutritionist/recipes",    label: "Recipes",   Icon: BookOpen },
+    { href: "/nutritionist/chats", label: "Chats", Icon: MessageSquare },
+    { href: "/nutritionist/recipes", label: "Recipes", Icon: BookOpen },
   ];
-
   const isActive = (href: string) => pathname?.startsWith(href);
 
-  const doLogout = async () => {
+  const handleLogout = async () => {
     try {
       await signOut(getClientAuth());
       router.push("/");
     } catch (e) {
-      console.error(e);
+      console.error("Logout failed:", e);
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar — styled like admin */}
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar */}
       <aside className="w-64 bg-white border-r">
         <div className="px-4 py-4 border-b">
           <h1 className="text-lg font-semibold">Nutritionist</h1>
         </div>
-
         <nav className="py-3">
           <ul className="space-y-1 px-2">
             {nav.map(({ href, label, Icon }) => (
@@ -57,9 +50,7 @@ export default function NutritionistLayout({ children }: { children: React.React
                 <Link
                   href={href}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm ${
-                    isActive(href)
-                      ? "bg-[#eaffea] text-[#1a7d1f]"
-                      : "text-gray-700 hover:bg-gray-100"
+                    isActive(href) ? "bg-[#eaffea] text-[#1a7d1f]" : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -69,28 +60,26 @@ export default function NutritionistLayout({ children }: { children: React.React
             ))}
           </ul>
         </nav>
-
-        <div className="px-2 pt-2 pb-4 border-t">
-          <button
-            onClick={doLogout}
-            className="w-full flex items-center justify-center gap-2 text-sm px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </button>
-        </div>
+        {/* removed sidebar logout to match admin placement */}
       </aside>
 
-      {/* Main area */}
-      <div className="flex-1 flex flex-col">
-        {/* Top bar — matches admin tone */}
+      {/* Main */}
+      <div className={`flex-1 flex flex-col`}>
+        {/* Top bar with Logout (same placement as admin) */}
         <header className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <h2 className="text-xl font-semibold">Nutritionist Dashboard</h2>
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+            <h2 className="text-lg md:text-xl font-semibold">Nutritionist Dashboard</h2>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 text-sm px-3 py-2 rounded-md border hover:bg-gray-50"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto w-full p-6">{children}</main>
+        <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
       </div>
     </div>
   );
