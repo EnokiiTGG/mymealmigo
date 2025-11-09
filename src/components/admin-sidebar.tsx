@@ -42,7 +42,6 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile }: S
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Content Editor", href: "/admin/cms", icon: FileEdit },
     { name: "Users", href: "/admin/users", icon: Users },
-    { name: "Recipes", href: "/admin/recipes", icon: List }, // ← added
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
