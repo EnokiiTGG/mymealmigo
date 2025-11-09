@@ -18,7 +18,7 @@ export default function NutritionistLayout({ children }: { children: React.React
     if (!user || !isNutritionist) router.replace("/");
   }, [loading, user, isNutritionist, router]);
 
-  if (loading || !user || !isNutritionist) return null;
+  if (loading || !user || !isNutritionist) return <div className="min-h-screen bg-gray-100" />;
 
   const nav = [
     { href: "/nutritionist/dashboard", label: "Dashboard", Icon: LayoutDashboard },
