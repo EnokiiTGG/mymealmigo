@@ -435,7 +435,7 @@ export default function Recipes() {
 
   /* ======================== UI ======================== */
   return (
-    <ProtectedRoute requireAdmin>
+    <ProtectedRoute requireNutritionist>
       <div className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-semibold">Recipes</h1>
