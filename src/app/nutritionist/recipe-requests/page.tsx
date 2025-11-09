@@ -44,6 +44,7 @@ type RecipeDoc = {
   imageURL?: string;
   imageStoragePath?: string;
   isPublic?: boolean;
+  status?: string; // Mobile app filters by "approved"
   createdAt?: any;
   updatedAt?: any;
 };
@@ -133,6 +134,7 @@ export default function RecipeRequestsPage() {
         imageURL: "",
         imageStoragePath: "",
         isPublic: true,
+        status: "approved", // IMPORTANT: Mobile app filters by this field
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
