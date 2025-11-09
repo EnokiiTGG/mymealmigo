@@ -46,7 +46,7 @@ export default function NutritionistDashboardPage() {
           <div className="text-sm text-gray-600">Recipes Pending Validation</div>
           <div className="text-3xl font-semibold mt-1">{pendingRecipes ?? "—"}</div>
           <a
-            href="/nutritionist/recipes"
+            href="/nutritionist/recipe-requests"
             className="text-[#58e221] text-sm mt-3 inline-block"
           >
             Go to Recipes
