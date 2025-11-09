@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getClientAuth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import { LayoutDashboard, MessageSquare, BookOpen, LogOut } from "lucide-react";
+import { LayoutDashboard, BookOpen, LogOut, Apple } from "lucide-react";
 
 export default function NutritionistLayout({ children }: { children: React.ReactNode }) {
   const { user, isNutritionist, loading } = useAuth() as any;
@@ -22,9 +22,10 @@ export default function NutritionistLayout({ children }: { children: React.React
 
   const nav = [
     { href: "/nutritionist/dashboard", label: "Dashboard", Icon: LayoutDashboard },
-    { href: "/nutritionist/chats", label: "Chats", Icon: MessageSquare },
+    { href: "/nutritionist/foods", label: "Foods", Icon: Apple },
     { href: "/nutritionist/recipes", label: "Recipes", Icon: BookOpen },
   ];
+
   const isActive = (href: string) => pathname?.startsWith(href);
 
   const handleLogout = async () => {
@@ -50,7 +51,9 @@ export default function NutritionistLayout({ children }: { children: React.React
                 <Link
                   href={href}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm ${
-                    isActive(href) ? "bg-[#eaffea] text-[#1a7d1f]" : "text-gray-700 hover:bg-gray-100"
+                    isActive(href)
+                      ? "bg-[#eaffea] text-[#1a7d1f]"
+                      : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -60,11 +63,11 @@ export default function NutritionistLayout({ children }: { children: React.React
             ))}
           </ul>
         </nav>
-        {/* removed sidebar logout to match admin placement */}
+        {/* (Logout kept in top bar to match admin placement) */}
       </aside>
 
       {/* Main */}
-      <div className={`flex-1 flex flex-col`}>
+      <div className="flex-1 flex flex-col">
         {/* Top bar with Logout (same placement as admin) */}
         <header className="bg-white border-b">
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
