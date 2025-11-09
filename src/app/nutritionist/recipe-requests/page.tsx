@@ -28,6 +28,8 @@ type RecipeRequest = {
   ingredients?: Ingredient[];
   steps?: string[];
   notes?: string;
+  imageURL?: string;
+  imageStoragePath?: string;
   userUid?: string;
   userEmail?: string;
   status?: "open" | "resolved";
@@ -131,8 +133,8 @@ export default function RecipeRequestsPage() {
           .map((i) => ({ name: (i.name || "").trim(), amount: (i.amount || "").trim() }))
           .filter((i) => i.name),
         steps: (r.steps || []).map((s) => `${s}`.trim()).filter(Boolean),
-        imageURL: "",
-        imageStoragePath: "",
+        imageURL: (r as any).imageURL || "", // Copy image from request
+        imageStoragePath: (r as any).imageStoragePath || "", // Copy storage path from request
         isPublic: true,
         status: "approved", // IMPORTANT: Mobile app filters by this field
         createdAt: serverTimestamp(),
