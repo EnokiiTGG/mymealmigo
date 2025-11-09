@@ -15,7 +15,8 @@ import {
   type WithFieldValue,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Search, Check, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Check, X, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 /* ======================== Types ======================== */
 type Ingredient = { name: string; amount?: string };
@@ -58,6 +59,7 @@ export default function RecipeRequestsPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"all" | "open" | "resolved">("open");
+  const [imageModal, setImageModal] = useState<string | null>(null);
 
   /* ======================== Helpers ======================== */
   const mapRequest = (id: string, data: DocumentData): RecipeRequest => {
@@ -76,6 +78,8 @@ export default function RecipeRequestsPage() {
       ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
       steps: Array.isArray(data.steps) ? data.steps : [],
       notes: data.notes || "",
+      imageURL: data.imageURL || "",
+      imageStoragePath: data.imageStoragePath || "",
       userUid: data.userUid || "",
       userEmail: data.userEmail || "",
       status: (data.status as "open" | "resolved") || "open",
@@ -133,8 +137,8 @@ export default function RecipeRequestsPage() {
           .map((i) => ({ name: (i.name || "").trim(), amount: (i.amount || "").trim() }))
           .filter((i) => i.name),
         steps: (r.steps || []).map((s) => `${s}`.trim()).filter(Boolean),
-        imageURL: (r as any).imageURL || "", // Copy image from request
-        imageStoragePath: (r as any).imageStoragePath || "", // Copy storage path from request
+        imageURL: r.imageURL || "",
+        imageStoragePath: r.imageStoragePath || "",
         isPublic: true,
         status: "approved", // IMPORTANT: Mobile app filters by this field
         createdAt: serverTimestamp(),
@@ -238,9 +242,35 @@ export default function RecipeRequestsPage() {
             </li>
           ) : (
             filtered.map((r) => (
-              <li key={r.id} className="px-4 py-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
+              <li key={r.id} className="px-4 py-4 hover:bg-gray-50 transition-colors">
+                <div className="flex gap-4">
+                  {/* Image Thumbnail - ADDED */}
+                  {r.imageURL ? (
+                    <div 
+                      className="shrink-0 cursor-pointer group relative"
+                      onClick={() => setImageModal(r.imageURL || null)}
+                    >
+                      <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200 group-hover:border-[#58e221] transition-colors">
+                        <Image
+                          src={r.imageURL}
+                          alt={r.title || "Recipe"}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 rounded-lg transition-opacity flex items-center justify-center">
+                        <ImageIcon className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="shrink-0 w-24 h-24 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <div className="font-medium text-base">{r.title || "(Untitled request)"}</div>
                       <span
@@ -331,7 +361,7 @@ export default function RecipeRequestsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex shrink-0 gap-2 self-start">
                     <button
                       onClick={() => convertRequestToRecipe(r)}
                       title="Convert to recipe and mark resolved"
@@ -362,6 +392,31 @@ export default function RecipeRequestsPage() {
           )}
         </ul>
       </div>
+
+      {/* Image Modal - ADDED */}
+      {imageModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+          onClick={() => setImageModal(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <button
+              onClick={() => setImageModal(null)}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 text-sm"
+            >
+              Close (ESC)
+            </button>
+            <Image
+              src={imageModal}
+              alt="Recipe preview"
+              width={800}
+              height={600}
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              unoptimized
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
