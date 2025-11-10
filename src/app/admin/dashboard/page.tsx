@@ -179,12 +179,7 @@ export default function AdminDashboard() {
           >
             Edit Content
           </Link>
-          <Link
-            href="/admin/settings"
-            className="block w-full py-2 px-4 rounded-md bg-white border border-gray-300 text-gray-700 text-center hover:bg-gray-50"
-          >
-            Update Settings
-          </Link>
+
         </div>
       </div>
     </div>
