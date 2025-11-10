@@ -68,10 +68,10 @@ export default function NutritionistDashboardPage() {
             href="/nutritionist/recipes"
             className="text-center px-4 py-2 rounded-md border hover:bg-gray-50"
           >
-            Validate Recipes
+            Manage Recipes
           </a>
           <a
-            href="/nutritionist/recipes"
+            href="/nutritionist/recipe-requests"
             className="text-center px-4 py-2 rounded-md border hover:bg-gray-50"
           >
             See Pending Recipes
