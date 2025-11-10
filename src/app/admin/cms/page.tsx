@@ -25,6 +25,9 @@ import { HowItWorks } from "@/components/how-it-works";
 import { Pricing } from "@/components/pricing";
 import { Testimonials } from "@/components/testimonials";
 
+/* =========================
+   Types
+========================= */
 interface HeroContent {
   title1: string;
   title2: string;
@@ -45,8 +48,8 @@ interface Feature {
 interface Step {
   title: string;
   description: string;
-  image: string;
-  storagePath?: string;
+  image: string;        // download URL or empty string (never placeholder name)
+  storagePath?: string; // preferred: gs:// or bucket path (websiteImages/..)
 }
 
 export interface Plan {
@@ -88,6 +91,15 @@ type SectionItem = Feature | Step | Plan | AppRating;
 
 const isNonEmptyArray = <T,>(v: unknown): v is T[] => Array.isArray(v);
 
+/* Firebase ref guard */
+function isFirebaseStorageRef(s: string) {
+  if (!s) return false;
+  if (s.startsWith("websiteImages/")) return true; // path in bucket
+  if (s.startsWith("gs://")) return true; // gs URL
+  if (s.startsWith("https://firebasestorage.googleapis.com")) return true; // download URL
+  return false;
+}
+
 export default function ContentEditor() {
   const [content, setContent] = useState<LandingPageContent | null>(null);
   const [appRatings, setAppRatings] = useState<AppRating[]>([]);
@@ -105,16 +117,17 @@ export default function ContentEditor() {
   const [maxTestimonials, setMaxTestimonials] = useState<number>(0);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemIndexToDelete, setItemIndexToDelete] = useState<number | null>(null);
-  // we only need the setter; the value was never read
   const [, setUploadingMedia] = useState<Record<string, boolean>>({});
 
   const sectionOrder: SectionKey[] = ["hero", "features", "howItWorks", "pricing", "appRating"];
 
+  /* Auth gate */
   useEffect(() => {
     if (authLoading) return;
     if (!user || !isAdmin) router.push("/login");
   }, [user, authLoading, isAdmin, router]);
 
+  /* Load content + ratings */
   useEffect(() => {
     let cancelled = false;
     if (!user || !isAdmin) return;
@@ -204,7 +217,7 @@ export default function ContentEditor() {
     };
   }, [user, isAdmin]);
 
-  // Sync editor text when switching sections or when data loads
+  /* Sync editor panel when switching section */
   useEffect(() => {
     if (!activeSection) return;
     if (activeSection === "appRating") {
@@ -219,6 +232,7 @@ export default function ContentEditor() {
     setPreviewMode(true);
   };
 
+  /* Upload */
   const handleMediaUpload = async (
     file: File,
     path: string,
@@ -285,6 +299,7 @@ export default function ContentEditor() {
     }
   };
 
+  /* Remove (robust, skips placeholders) */
   const handleRemoveMedia = async (
     section: keyof LandingPageContent,
     index?: number,
@@ -296,10 +311,9 @@ export default function ContentEditor() {
       const data = snap.data() as LandingPageContent | undefined;
       if (!data) throw new Error("Content not found");
 
-      let targetRefPath = "";
+      let targetRefPath = ""; // may be storage path or full URL
 
       if (section === "hero") {
-        // Prefer storagePath; fall back to URL
         targetRefPath =
           mediaType === "video"
             ? (data.hero.videoStoragePath || data.hero.videoURL || "")
@@ -314,12 +328,13 @@ export default function ContentEditor() {
         throw new Error("Invalid section or index");
       }
 
-      // Works with either a path (websiteImages/...) or a full https/gs URL
-      await deleteObject(ref(storage, targetRefPath));
+      // If it's not a Firebase Storage object (e.g., placeholder.svg), just clear fields.
+      if (isFirebaseStorageRef(targetRefPath)) {
+        await deleteObject(ref(storage, targetRefPath));
+      }
 
       if (!content) return;
 
-      // Update local state + Firestore
       if (section === "hero") {
         const updatedHero: HeroContent = {
           ...content.hero,
@@ -349,7 +364,7 @@ export default function ContentEditor() {
     }
   };
 
-
+  /* Save */
   const handleSaveSection = async () => {
     if (!activeSection) return;
     setIsSaving(true);
@@ -425,10 +440,9 @@ export default function ContentEditor() {
     }
   };
 
-
+  /* Editors & Preview */
   const renderVisualEditor = () => {
     if (!activeSection) return <p>Select a section to edit</p>;
-
     try {
       const sectionData = JSON.parse(editedContent);
 
@@ -663,7 +677,6 @@ export default function ContentEditor() {
         const sorted = sortAppRatings(ratings);
         return (
           <div className="space-y-4">
-            {/* controls */}
             <div className="flex gap-4 flex-wrap">
               <div>
                 <label className="block text-sm mb-1">Sort By</label>
@@ -845,6 +858,7 @@ export default function ContentEditor() {
     }
   };
 
+  /* Render */
   if (authLoading || (!content && appRatings.length === 0)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
