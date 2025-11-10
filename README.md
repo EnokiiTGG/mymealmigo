@@ -20,7 +20,7 @@ A Next.js app for MyMealMigo with **staff-only authentication**, an **Admin CMS*
   - Footer has a **Staff** column with *Staff login* (logged out) and links to dashboards (logged in)
 
 - **Admin Area** (`/admin/*`)
-  - Dashboard, Content Editor, Users, Recipes, Settings
+  - Dashboard, Content Editor, Users, Recipes
   - Header logout button (top-right)
 
 - **Nutritionist Area** (`/nutritionist/*`)
