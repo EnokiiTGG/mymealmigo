@@ -296,25 +296,30 @@ export default function ContentEditor() {
       const data = snap.data() as LandingPageContent | undefined;
       if (!data) throw new Error("Content not found");
 
-      let storagePath = "";
+      let targetRefPath = "";
+
       if (section === "hero") {
-        storagePath = mediaType === "video" ? data.hero.videoStoragePath ?? "" : data.hero.imageStoragePath ?? "";
-        if (!storagePath || !storagePath.startsWith("websiteImages/")) {
-          throw new Error(`Invalid storage path for hero ${mediaType ?? "image"}`);
-        }
+        // Prefer storagePath; fall back to URL
+        targetRefPath =
+          mediaType === "video"
+            ? (data.hero.videoStoragePath || data.hero.videoURL || "")
+            : (data.hero.imageStoragePath || data.hero.imageURL || "");
+        if (!targetRefPath) throw new Error(`No ${mediaType ?? "image"} to remove`);
       } else if (section === "howItWorks" && typeof index === "number") {
-        storagePath = data.howItWorks[index]?.storagePath || "";
-        if (!storagePath || !storagePath.startsWith("websiteImages/")) {
-          throw new Error("Invalid storage path for howItWorks image");
-        }
+        const step = data.howItWorks[index];
+        if (!step) throw new Error("Invalid step index");
+        targetRefPath = step.storagePath || step.image || "";
+        if (!targetRefPath) throw new Error("No image to remove for this step");
       } else {
         throw new Error("Invalid section or index");
       }
 
-      await deleteObject(ref(storage, storagePath));
+      // Works with either a path (websiteImages/...) or a full https/gs URL
+      await deleteObject(ref(storage, targetRefPath));
 
       if (!content) return;
 
+      // Update local state + Firestore
       if (section === "hero") {
         const updatedHero: HeroContent = {
           ...content.hero,
@@ -343,6 +348,7 @@ export default function ContentEditor() {
       setSaveMessage(`Error: ${msg}`);
     }
   };
+
 
   const handleSaveSection = async () => {
     if (!activeSection) return;
