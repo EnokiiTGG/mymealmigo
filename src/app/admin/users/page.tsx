@@ -245,7 +245,10 @@ export default function AdminUsersPage() {
                             ? "bg-purple-100 text-purple-800"
                             : u.role === "admin"
                             ? "bg-amber-100 text-amber-800"
+                            : u.role === "nutritionist"
+                            ? "bg-teal-100 text-teal-800"
                             : "bg-gray-100 text-gray-800"
+                            
                         }`}
                       >
                         {u.role}
