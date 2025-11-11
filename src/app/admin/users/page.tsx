@@ -82,7 +82,8 @@ export default function AdminUsersPage() {
         const rawRole = typeof data?.role === "string" ? (data.role.toLowerCase() as Role | "user") : "free";
         const subPlan: "free" | "premium" =
           data?.subscription?.plan === "premium" || rawRole === "premium" ? "premium" : "free";
-        const role: Role = rawRole === "admin" ? "admin" : subPlan === "premium" ? "premium" : "free";
+        const role: Role = rawRole === "admin" ? "admin" : rawRole === "nutritionist" ? "nutritionist" : subPlan === "premium" ? "premium" : "free";
+        
 
         // account status
         const status: AccountStatus = data?.accountStatus === "Suspended" ? "Suspended" : "Active";
