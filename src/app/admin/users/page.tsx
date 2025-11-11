@@ -14,7 +14,7 @@ import {
 import { db } from "@/lib/firebase";
 import { ProtectedRoute } from "@/context/ProtectedRoute";
 
-type Role = "free" | "premium" | "admin";
+type Role = "free" | "premium" | "admin" | "nutritionist";
 type AccountStatus = "Active" | "Suspended";
 type RoleFilter = "all" | Role;
 
@@ -185,6 +185,7 @@ export default function AdminUsersPage() {
               <option value="free">Free</option>
               <option value="premium">Premium</option>
               <option value="admin">Admin</option>
+              <option value="nutritionist">Nutritionist</option>
             </select>
           </div>
         </div>
