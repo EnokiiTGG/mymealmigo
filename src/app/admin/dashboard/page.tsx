@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Users, DollarSign, Activity, ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import { collection, getDocs, query, where, Timestamp } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 interface DashboardStats {
@@ -37,26 +37,21 @@ export default function AdminDashboard() {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        const now = new Date();
-        const thirtyDaysAgo = new Date(now);
-        thirtyDaysAgo.setDate(now.getDate() - 30);
-
         // Total users
         const allUsersSnap = await getDocs(collection(db, "users"));
         const totalUsers = allUsersSnap.size;
 
-        // Active users (last 30 days)
+        // Active users (accountStatus == "Active")
         const activeUsersQuery = query(
           collection(db, "users"),
-          where("lastActive", ">=", Timestamp.fromDate(thirtyDaysAgo))
+          where("accountStatus", "==", "Active")
         );
         const activeUsers = (await getDocs(activeUsersQuery)).size;
 
-        // Premium subscriptions (role == "premium" and subscription.active == true)
+        // Premium subscriptions (role == "premium")
         const subsQuery = query(
           collection(db, "users"),
-          where("role", "==", "premium"),
-          where("subscription.active", "==", true)
+          where("role", "==", "premium")
         );
         const subscription = (await getDocs(subsQuery)).size;
 
@@ -120,7 +115,7 @@ export default function AdminDashboard() {
           <div className="text-2xl font-bold">
             {isLoading ? "Loading..." : stats.activeUsers.toLocaleString()}
           </div>
-          <p className="text-gray-500 text-sm mt-2">Last 30 days</p>
+          <p className="text-gray-500 text-sm mt-2">Account status active</p>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
@@ -179,7 +174,6 @@ export default function AdminDashboard() {
           >
             Edit Content
           </Link>
-
         </div>
       </div>
     </div>
