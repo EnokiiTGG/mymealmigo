@@ -18,7 +18,7 @@ interface QuickMetrics {
   premiumUsers: number;
 }
 
-const SUBSCRIPTION_PRICE = 9.99; // USD
+const SUBSCRIPTION_PRICE = 4.99; // USD
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
