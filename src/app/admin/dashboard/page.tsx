@@ -10,7 +10,7 @@ interface DashboardStats {
   users: number;
   revenue: number;
   activeUsers: number;
-  subscriptions: number;
+  subscription: number;
 }
 
 interface QuickMetrics {
@@ -25,7 +25,7 @@ export default function AdminDashboard() {
     users: 0,
     revenue: 0,
     activeUsers: 0,
-    subscriptions: 0,
+    subscription: 0,
   });
   const [quick, setQuick] = useState<QuickMetrics>({
     freeUsers: 0,
@@ -58,15 +58,15 @@ export default function AdminDashboard() {
           where("role", "==", "premium"),
           where("subscription.active", "==", true)
         );
-        const subscriptions = (await getDocs(subsQuery)).size;
+        const subscription = (await getDocs(subsQuery)).size;
 
         // Free vs Premium breakdown
         const freeSnap = await getDocs(query(collection(db, "users"), where("role", "==", "free")));
         const premiumSnap = await getDocs(query(collection(db, "users"), where("role", "==", "premium")));
 
-        const revenue = subscriptions * SUBSCRIPTION_PRICE;
+        const revenue = subscription * SUBSCRIPTION_PRICE;
 
-        setStats({ users: totalUsers, revenue, activeUsers, subscriptions });
+        setStats({ users: totalUsers, revenue, activeUsers, subscription });
         setQuick({ freeUsers: freeSnap.size, premiumUsers: premiumSnap.size });
       } catch (err) {
         console.error("Dashboard fetch error:", err);
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-2xl font-bold">
-            {isLoading ? "Loading..." : stats.subscriptions.toLocaleString()}
+            {isLoading ? "Loading..." : stats.subscription.toLocaleString()}
           </div>
           <p className="text-gray-500 text-sm mt-2">Active premium subscriptions</p>
         </div>
